@@ -1,15 +1,13 @@
-import { Component } from "react";
-import styled from 'styled-components';
+import React from "react";
 import { ThreeDots } from 'react-loader-spinner'
+import styled from 'styled-components';
 
 const Spinner = styled.div`
     display: flex;
     justify-content: center;
 `;
 
-export class Loader extends Component{
-
-    render() {
+export function Loader (){
         return (
         <Spinner>
          <ThreeDots 
@@ -19,10 +17,9 @@ export class Loader extends Component{
             color="#3f51b5" 
             ariaLabel="three-dots-loading"
             wrapperStyle={{}}
-             wrapperClassName=""
+            wrapperClassName=""
             visible={true}
                 />
         </Spinner>
         );
-    }
 }

@@ -1,4 +1,5 @@
-import { Component } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import { Searchbar } from "./Searchbar/Searchbar";
 import { ImageGallery } from "./ImageGallery/ImageGallery";
@@ -7,92 +8,75 @@ import { Button } from "./Button/Button";
 import { Modal } from "./Modal/Modal";
 import { Loader } from "./Loader/Loader";
 
-// import { ThreeDots } from 'react-loader-spinner'
+const IMAGE_PER_PAGE = 12;
 
-export class App extends Component {
-  state = {
-    imgSearch: '',
-    imgArray: [],
-    page: 1,
-    modalShow: -1,
-    loadSpiner: false,
+export function App () {
+  const [imgSearch, setImgSearch] = useState('');
+  const [imgArray, setImgArray] = useState([]);
+  const [page, setPage] = useState(1);
+  const [modalShow, setModalShow] = useState(-1);
+  const [loadSpiner, setLoadSpiner] = useState(false);
+
+  const handleSubmit = ({ imgQuery } ) => {
+    setImgSearch(imgQuery);
+    setPage(1);
+    setImgArray([]);
   }
 
-  handleSubmit = async ({ imgSearch }) => {
-    this.loadToggle();
-    this.setState({imgSearch});
-    
-    await this.getImg(imgSearch, 1).then(result => {
-      this.setState({ imgArray: [...result.data.hits], page: 1, imgSearch });
-    }).catch(e => {
-      this.setState({ imgArray: [], page: 1, imgSearch: '' });
-    });
-    this.loadToggle();
+  const handleLoadMore = () => {
+    setPage(prevState => prevState + 1);
   }
 
-  handleLoadMore = async () => {
-    const { imgSearch, page } = this.state;
-    this.loadToggle();
-    await this.getImg(imgSearch,page+1).then(result => {
-      this.setState(prevState => (
-        { imgArray: [...prevState.imgArray,...result.data.hits], page: prevState.page +1 }
-      ));
-      }).catch(e => { 
-          this.setState({ imgArray: [], page: 1, imgSearch: ''});
+  useEffect(() => {
+    const query = `https://pixabay.com/api/?q=${imgSearch}&page=${page}&key=31033465-5993d082d5a9a4a2e6778e4ca&image_type=photo&orientation=horizontal&per_page=${IMAGE_PER_PAGE}`;
+    if (imgSearch === '') return;
+    getImage(query);
+  },[imgSearch,page]);
+
+  const getImage = async (query) => {
+    setLoadSpiner(true);
+      await axios
+      .get(query)
+       .then(result => {
+         if (result.data.hits.length === 0) return;
+         setImgArray(prevState => [...prevState, ...result.data.hits]);
+        return;
+      })
+      .catch(e => {
+        return;
       });
-    this.loadToggle();
+    setLoadSpiner(false);
   }
 
-  handleModal = (e) => {
-
-    this.setState({ modalShow:  Number(e.target.dataset.index)});
+  const handleModal = (e) => {
+    setModalShow(Number(e.target.dataset.index));
   }
 
-  handleCloseModal = () => {
-    this.setState({modalShow: -1})
+  const handleMyCloseModal = () => {
+    setModalShow(-1);
   }
 
-  handleBackDropClick = (e) => {
-    if (e.currentTarget === e.target) {
-      this.handleCloseModal();
+  const handleBackDropClick = (e) => {
+    if (e.currentTarget === e.target) { 
+      handleMyCloseModal();
     }
   }
 
-  loadToggle = () => {
-    this.setState(prevState => {
-      return { loadSpiner: !prevState.loadSpiner }
-    })
-  }
 
-  getImg(imgSearch, page) {
-    const query = `https://pixabay.com/api/?q=${imgSearch}&page=${page}&key=31033465-5993d082d5a9a4a2e6778e4ca&image_type=photo&orientation=horizontal&per_page=12`;
-     return axios
-      .get(query)
-       .then(result => {
-        if (result.data.hits.length === 0) return {};
-        return result;
-      })
-      .catch(e => {
-        return {};
-      });
-  }
-
-  render() {
-    const { imgArray, modalShow, loadSpiner } = this.state;
     return (
       <>
-        <Searchbar handleSubmit={this.handleSubmit} />
+        <Searchbar handleSubmit={handleSubmit} />
         {imgArray.length > 0 &&
           <ImageGallery>
             {imgArray.map((e, i)=> {
               return (
-                <ImageGalleryItem key={e.id} src={e.webformatURL} alt={e.tags} index={i} handleModal={ this.handleModal} />
+                <ImageGalleryItem key={e.id} src={e.webformatURL} alt={e.tags} index={i} handleModal={handleModal} />
               );
             })}
           </ImageGallery>
         }
-        {imgArray.length > 11 && !loadSpiner &&
-          <Button handleLoadMore={this.handleLoadMore} />
+        {imgArray.length >= IMAGE_PER_PAGE && !loadSpiner &&
+          <Button handleLoadMore={handleLoadMore} />
         }
         {loadSpiner && 
           <Loader 
@@ -109,11 +93,9 @@ export class App extends Component {
         {modalShow > -1 &&
           <Modal src={imgArray[modalShow].largeImageURL}
             alt={imgArray[modalShow].tags}
-            handleCloseModal={this.handleCloseModal}
-            handleBackDropClick={this.handleBackDropClick}
+            handleMyCloseModal={handleMyCloseModal}
+            handleBackDropClick={handleBackDropClick}
           />}
-
       </>
     );
-  }
 };

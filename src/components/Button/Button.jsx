@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React from "react";
 import styled from 'styled-components';
 
 const ButtonLoadMore = styled.button`
@@ -28,11 +28,8 @@ const ButtonLoadMore = styled.button`
 }
 `;
 
-export class Button extends Component{
-
-    render() {
+export function Button({handleLoadMore}){
         return (
-            <ButtonLoadMore type="button" onClick={this.props.handleLoadMore}>Load more</ButtonLoadMore>
+            <ButtonLoadMore type="button" onClick={handleLoadMore}>Load more</ButtonLoadMore>
         );
-    }
 }

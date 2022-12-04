@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React from "react";
 import styled from 'styled-components';
 
 const ImgGalleryItem = styled.li`
@@ -19,14 +19,13 @@ const ImageGalleryItemImage = styled.img`
 `;
 
 
-export class ImageGalleryItem extends Component{
-    render() {
-    const { src, alt, index } = this.props;
+export function ImageGalleryItem (props){
+    const { src, alt, index } = props;
 
     return (
         <ImgGalleryItem>
-            <ImageGalleryItemImage src={src} alt={alt} data-index={index} onClick={this.props.handleModal} />
+            <ImageGalleryItemImage src={src} alt={alt} data-index={index} onClick={props.handleModal} />
         </ImgGalleryItem>
         );
-    }
+
 }

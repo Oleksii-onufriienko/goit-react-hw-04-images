@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React from "react";
 import { Formik, Form, Field } from 'formik';
 
 import styled from 'styled-components';
@@ -77,15 +77,13 @@ const SearchFormInput = styled(Field)`
   }
 `;
 
-export class Searchbar extends Component{
-    initialValues = {
-     imgSearch: '',
+export function Searchbar({handleSubmit}){
+    let initialValues = {
+        imgQuery: '',
     }
-
-    render() {
         return (
         <Header>
-            <Formik initialValues={ this.initialValues} onSubmit={this.props.handleSubmit}>
+            <Formik initialValues={ initialValues} onSubmit={handleSubmit}>
 
             <SearchForm autoComplete="off">
                <SearchFormButton type="submit">
@@ -94,13 +92,12 @@ export class Searchbar extends Component{
 
                <SearchFormInput
                 type="text"
-                name ="imgSearch"
+                name ="imgQuery"
                 autoFocus
                 placeholder="Search images and photos"
                />
             </SearchForm>
             </Formik>        
         </Header>
-                   );
-    }
+        );
 }
